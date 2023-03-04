@@ -2,7 +2,7 @@ package main
 
 import (
     "fmt"
-    "log"
+    "strconv"
 )
 
 type Board [3][3]rune
@@ -32,14 +32,26 @@ func getTrue() bool {
     return true
 }
 
+func parseInt(text string) (int, error) {
+    return strconv.Atoi(text)
+}
+
 func (game *Game) next() {
     fmt.Println("Write a position:")
-    fmt.Println()
+
+    var posStr string
+    _, scanErr := fmt.Scanln(&posStr)
+    if scanErr != nil {
+        fmt.Printf("Scan error: %v.\n", scanErr)
+        return
+    }
 
     var pos int
-    _, scanErr := fmt.Scanln(&pos)
-    if scanErr != nil {
-        log.Fatal(scanErr)
+    if n,parseErr := parseInt(posStr) ; parseErr != nil {
+        fmt.Println("Not valid position, must be a number. Try again")
+        return
+    } else {
+        pos = n
     }
 
     var playerMoving Player
@@ -99,36 +111,48 @@ func (game Game) isFinished() bool {
         return true
     }
 
-    fmt.Println(game.lastMove)
+    if game.lastMove == nil {
+        fmt.Println("Last move not valid, cancelling")
+        return false
+    }
 
+    pos := game.lastMove.position
+    col,row,_ := GetColRow(pos)
 
-    row := 0
-    return game.board.isWinnerRow(row)
+    var winConditions []bool
 
+    if pos == 1 || pos == 9 {
+        winConditions = append(winConditions, game.board.isWinningDiagonal(1))
+    }
 
-    //return board[0][0] == board[0][1] && board[0][1h == board[0][2]
+    if pos == 3 || pos == 7 {
+        winConditions = append(winConditions, game.board.isWinningDiagonal(3))
+    }
 
+    winConditions = append(winConditions, game.board.isWinnerRow(row))
+    winConditions = append(winConditions, game.board.isWinnerCol(col))
 
-    //fmt.Println(board)
+    fmt.Println(winConditions)
 
-    //for _,piece := range row {
+    for _,condition := range winConditions {
+        if condition == true {
+            game.printWinner()
+            return true
+        }
+    }
 
-        //if piece == '-' {
-            //return false
-        //}
-        //fmt.Printf("%c %c\n", piece, previous)
+    return false
+}
 
-        //if piece != previous {
-            //return false
-        //}
-        //previous = piece
-    //}
-
-    //return true
+func (game Game) printWinner() {
+    fmt.Printf("Winner: %v!", game.lastMove)
 }
 
 func (game Game) PrintTitle() {
     fmt.Println("TicTacToe\n----------")
+}
+func (game Game) printEnd() {
+    fmt.Println("\n--------\nGame finished")
 }
 
 func main() {
@@ -145,22 +169,12 @@ func main() {
 
     game.PrintTitle()
 
+    game.next()
     for !game.isFinished() {
+        fmt.Println("---------------")
         game.next()
     }
-
-    return
-
-
-    board.MakeMove(1, markel)
-    board.MakeMove(2, bot)
-    board.MakeMove(3, markel)
-    board.MakeMove(4, bot)
-    board.MakeMove(5, markel)
-    board.MakeMove(6, bot)
-    board.MakeMove(7, markel)
-    board.MakeMove(8, bot)
-    board.MakeMove(9, markel)
+    game.printEnd()
 }
 
 func (board *Board) MakeMove(pos int, player Player) error  {
@@ -168,9 +182,11 @@ func (board *Board) MakeMove(pos int, player Player) error  {
     if err != nil {
         return err
     }
+    if board[row][col] != '-' {
+        return fmt.Errorf("Position already busy. Select another one")
+    }
     board[row][col] = player.piece
     board.Print()
-    fmt.Println("---------------")
 
     return nil
 }
