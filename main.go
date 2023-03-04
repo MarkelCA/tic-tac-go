@@ -13,13 +13,19 @@ type Player struct {
     name string
 }
 
+type Move struct {
+    player   Player
+    position int
+}
+
 type Game struct {
     board      Board
     player1    Player
     player2    Player
     firstMove  Player
-    lastMoved  *Player
+    lastMove  *Move
     winner     *Player
+    turnCount  int
 }
 
 func getTrue() bool {
@@ -38,9 +44,9 @@ func (game *Game) next() {
 
     var playerMoving Player
 
-    if game.lastMoved == nil {
+    if game.lastMove == nil {
         playerMoving = game.firstMove
-    } else if game.lastMoved.piece == game.player1.piece {
+    } else if game.lastMove.player.piece == game.player1.piece {
         playerMoving = game.player2
     } else {
         playerMoving = game.player1
@@ -50,30 +56,75 @@ func (game *Game) next() {
     if moveErr != nil {
         fmt.Println(moveErr)
     } else {
-        game.lastMoved = &playerMoving
+        move := Move{playerMoving,pos}
+        game.lastMove = &move
+        game.turnCount += 1
     }
 }
 
-func (board Board) isFinished() bool {
-    previous := board[0][0]
-    row := board[0]
-
-    fmt.Println(board)
-
-    for _,piece := range row {
-
-        if piece == '-' {
-            return false
+func contains(slice []rune, element rune) bool {
+    for _,x := range slice {
+        if x == element {
+            return true
         }
-        fmt.Printf("%c %c\n", piece, previous)
+    }
+    return false
+}
 
-        if piece != previous {
-            return false
-        }
-        previous = piece
+func (board Board) isWinnerRow(row int) bool {
+    fullRow := board[row]
+    return !contains(board[row][:], '-') && fullRow[0] == fullRow[1] && fullRow[1] == fullRow[2]
+
+}
+
+func (board Board) isWinnerCol(col int) bool {
+    fullCol := [3]rune{board[0][col], board[1][col], board[2][col]}
+    return !contains(fullCol[:], '-') && fullCol[0] == fullCol[1] && fullCol[1] == fullCol[2]
+
+}
+
+func (board Board) isWinningDiagonal(pos int) bool {
+    var fullDiagonal [3]rune
+    if pos == 1 || pos == 9 {
+        fullDiagonal = [3]rune{board[0][0], board[1][1], board[2][2]}
+    } else if pos == 3 || pos == 7 {
+        fullDiagonal = [3]rune{board[0][2], board[1][1], board[2][0]}
     }
 
-    return true
+    return !contains(fullDiagonal[:], '-') && fullDiagonal[0] == fullDiagonal[1] && fullDiagonal[1] == fullDiagonal[2]
+}
+
+func (game Game) isFinished() bool {
+    if game.turnCount == 9 {
+        return true
+    }
+
+    fmt.Println(game.lastMove)
+
+
+    row := 0
+    return game.board.isWinnerRow(row)
+
+
+    //return board[0][0] == board[0][1] && board[0][1h == board[0][2]
+
+
+    //fmt.Println(board)
+
+    //for _,piece := range row {
+
+        //if piece == '-' {
+            //return false
+        //}
+        //fmt.Printf("%c %c\n", piece, previous)
+
+        //if piece != previous {
+            //return false
+        //}
+        //previous = piece
+    //}
+
+    //return true
 }
 
 func (game Game) PrintTitle() {
@@ -94,7 +145,7 @@ func main() {
 
     game.PrintTitle()
 
-    for !game.board.isFinished() {
+    for !game.isFinished() {
         game.next()
     }
 

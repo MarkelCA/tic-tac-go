@@ -30,14 +30,51 @@ func TestIsFinished(t *testing.T) {
 
     finishedBoard  := Board{ 
         {'x','x','x'},
-        {'-','-','-'},
-        {'-','-','-'},
+        {'x','-','-'},
+        {'x','-','-'},
     }
 
-
-    if result := finishedBoard.isFinished() ; result == false {
+    if result := finishedBoard.isWinnerRow(0) ; result == false {
         t.Errorf("result %v, wanted %v", result, false)
     }
+    if result := finishedBoard.isWinnerRow(1) ; result != false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+    if result := finishedBoard.isWinnerCol(0) ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+    if result := finishedBoard.isWinnerCol(1) ; result != false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+}
+
+func TestIsWinnerDiagonal(t *testing.T) {
+    finishedBoard  := Board{ 
+        {'x','-','-'},
+        {'-','x','-'},
+        {'-','-','x'},
+    }
+
+    if result := finishedBoard.isWinningDiagonal(1) ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+    if result := finishedBoard.isWinningDiagonal(9) ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+
+    finishedBoard2  := Board{ 
+        {'-','-','o'},
+        {'-','o','-'},
+        {'o','-','-'},
+    }
+
+    if result := finishedBoard2.isWinningDiagonal(3) ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+    if result := finishedBoard2.isWinningDiagonal(7) ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+
 }
 
 func TestGetColRow(t *testing.T) {
