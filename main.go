@@ -31,9 +31,9 @@ func (game *Game) next() {
     fmt.Println()
 
     var pos int
-    _, err := fmt.Scanln(&pos)
-    if err != nil {
-        log.Fatal(err)
+    _, scanErr := fmt.Scanln(&pos)
+    if scanErr != nil {
+        log.Fatal(scanErr)
     }
 
     var playerMoving Player
@@ -46,12 +46,38 @@ func (game *Game) next() {
         playerMoving = game.player1
     }
 
-    game.board.MakeMove(pos, playerMoving)
-    game.lastMoved = &playerMoving
+    moveErr := game.board.MakeMove(pos, playerMoving)
+    if moveErr != nil {
+        fmt.Println(moveErr)
+    } else {
+        game.lastMoved = &playerMoving
+    }
 }
 
 func (board Board) isFinished() bool {
-    return false
+    previous := board[0][0]
+    row := board[0]
+
+    fmt.Println(board)
+
+    for _,piece := range row {
+
+        if piece == '-' {
+            return false
+        }
+        fmt.Printf("%c %c\n", piece, previous)
+
+        if piece != previous {
+            return false
+        }
+        previous = piece
+    }
+
+    return true
+}
+
+func (game Game) PrintTitle() {
+    fmt.Println("TicTacToe\n----------")
 }
 
 func main() {
@@ -66,7 +92,8 @@ func main() {
         player2:   bot,
     }
 
-    fmt.Println("TicTacToe\n----------")
+    game.PrintTitle()
+
     for !game.board.isFinished() {
         game.next()
     }
@@ -85,7 +112,23 @@ func main() {
     board.MakeMove(9, markel)
 }
 
-func (board *Board) MakeMove(pos int, player Player) {
+func (board *Board) MakeMove(pos int, player Player) error  {
+    col, row, err := GetColRow(pos)
+    if err != nil {
+        return err
+    }
+    board[row][col] = player.piece
+    board.Print()
+    fmt.Println("---------------")
+
+    return nil
+}
+
+func GetColRow(pos int) (int, int, error) {
+    if pos < 1 || pos > 9 {
+        return 0, 0, fmt.Errorf("Argument \"pos\" is not valid (%v). It must be between 1 and 9", pos)
+    }
+
     col  := 3
     row  := pos / 3
     rest := pos % 3
@@ -95,9 +138,7 @@ func (board *Board) MakeMove(pos int, player Player) {
         col = rest
     }
 
-    board[row-1][col-1] = player.piece
-    board.Print()
-    fmt.Println("---------------")
+    return col-1, row-1, nil
 }
 
 

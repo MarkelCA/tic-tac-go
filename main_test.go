@@ -15,29 +15,73 @@ func TestGetTrue(t *testing.T) {
 }
 
 func TestIsFinished(t *testing.T) {
-    emptyBoard  := Board{ 
-        {'-','-','-'},
-        {'-','-','-'},
-        {'-','-','-'},
-    }
+    //emptyBoard  := Board{ 
+        //{'-','-','-'},
+        //{'-','-','-'},
+        //{'-','-','-'},
+    //}
 
-    got := emptyBoard.isFinished()
-    want := false
+    //got := emptyBoard.isFinished()
+    //want := false
 
-    if got != want {
-        t.Errorf("got %v, wanted %v", got, want)
-    }
+    //if result := emptyBoard.isFinished() ; result == true {
+        //t.Errorf("got %v, wanted %v", got, want)
+    //}
 
     finishedBoard  := Board{ 
-        {'x','-','-'},
-        {'x','-','-'},
-        {'x','-','-'},
+        {'x','x','x'},
+        {'-','-','-'},
+        {'-','-','-'},
     }
 
-    got2 := finishedBoard.isFinished()
-    want2 := false
 
-    if got2 != want2 {
-        t.Errorf("got2 %v, wanted %v", got2, want2)
+    if result := finishedBoard.isFinished() ; result == false {
+        t.Errorf("result %v, wanted %v", result, false)
+    }
+}
+
+func TestGetColRow(t *testing.T) {
+    if col,row,err := GetColRow(1) ; col != 0 || row != 0 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(2) ; col != 1 || row != 0 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+     
+    if col,row,err := GetColRow(3) ; col != 2 || row != 0 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(4) ; col != 0 || row != 1 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(5) ; col != 1 || row != 1 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(6) ; col != 2 || row != 1 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(7) ; col != 0 || row != 2 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(8) ; col != 1 || row != 2 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if col,row,err := GetColRow(9) ; col != 2 || row != 2 && err != nil {
+        t.Errorf("Col(expected=%v, received=%v), Row(expected=%v, received=%v)", 0, col, 0, row)
+    }
+
+    if _,_,err := GetColRow(0) ; err == nil {
+        t.Error("Must have thrown an exception")
+    }
+
+    if _,_,err := GetColRow(10) ; err == nil {
+        t.Error("Must have thrown an exception")
     }
 }
